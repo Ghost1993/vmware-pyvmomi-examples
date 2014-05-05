@@ -14,16 +14,16 @@ from com.hp.pyVmomi import vim, vmodl
 from com.hp.pyVim import connect
 from com.hp.pyVim.connect import Disconnect, SmartConnect
 
-inputs = {'vcenter_ip': '15.146.198.11',
-          'vcenter_password': 'Procurve123',
+inputs = {'vcenter_ip': '10.10.10.211',
+          'vcenter_password': 'Password123',
           'vcenter_user': 'Administrator',
           'vm_name' : 'reuben-test',
           'isDHCP' : 'False',
-          'vm_ip' : '15.146.198.210',
+          'vm_ip' : '10.10.10.212',
           'subnet' : '255.255.255.0',
-          'gateway' : '15.146.198.1',
-          'dns' : ['16.110.135.51', '16.110.135.52'],
-          'domain' : 'asiapacific.cpqcorp.net'
+          'gateway' : '10.10.10.1',
+          'dns' : ['11.110.135.51', '11.110.135.52'],
+          'domain' : 'asiapacific.mycomp.net'
           }
 
 def get_obj(content, vimtype, name):
