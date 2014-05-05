@@ -18,6 +18,7 @@ inputs = {'vcenter_ip': '10.10.10.211',
           'vcenter_password': 'Password123',
           'vcenter_user': 'Administrator',
           'vm_name' : 'reuben-test',
+          #Start, Stop(force), Suspend(force)
           'operation' : 'suspend',
           'force' : True,   
           }
