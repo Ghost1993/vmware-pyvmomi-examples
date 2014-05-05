@@ -1,8 +1,8 @@
 '''
 Created on Apr 14, 2014
 
-@author: Reubenur Rahman reuben.13@gmail.com
-
+@author: reuben.13@gmail.com
+Reubenur Rahman
 '''
 import atexit
 import argparse
