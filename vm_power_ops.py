@@ -10,9 +10,9 @@ import argparse
 import sys
 import time
 
-from com.hp.pyVmomi import vim, vmodl
-from com.hp.pyVim import connect
-from com.hp.pyVim.connect import Disconnect, SmartConnect, GetSi
+from pyVmomi import vim, vmodl
+from pyVim import connect
+from pyVim.connect import Disconnect, SmartConnect, GetSi
 
 inputs = {'vcenter_ip': '10.10.10.211',
           'vcenter_password': 'Password123',
