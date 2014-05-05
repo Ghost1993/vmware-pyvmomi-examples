@@ -1,7 +1,7 @@
 '''
 Created on May 3, 2014
 
-@author: rahmanre
+@author: Reubenur Rahman reuben.13@gmail.com
 '''
 
 import atexit
