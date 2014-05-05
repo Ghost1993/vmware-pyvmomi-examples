@@ -1,8 +1,10 @@
 '''
 Created on May 3, 2014
 
+Copyright 2013-2014 Reubenur Rahman.
+All Rights Reserved
+
 @author: reuben.13@gmail.com
-Reubenur Rahman
 '''
 
 import atexit
