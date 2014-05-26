@@ -1,0 +1,6 @@
+Run the script by running invoke_script.py
+
+The Script will iterate for each Cluster and each host.
+
+The required inputs have to provide in vm_creation.ini
+
