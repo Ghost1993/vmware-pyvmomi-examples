@@ -87,7 +87,7 @@ def main():
         for datastore in target_host.datastore:
             #Store the OVS vApp VM in local datastore of each host
             if datastore.summary.type == 'VMFS':
-                print "Storing the OVSvAPP VM in %s" % datastore.name
+                print " Moving the VM in %s" % datastore.name
                 relocate_spec.datastore = datastore
                 break
 
