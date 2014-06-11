@@ -104,9 +104,8 @@ def main():
     except vmodl.MethodFault, e:
             msg = e.msg
             if(msg.startswith("The setting of vmConfig is invalid")):
-                self.logger.warn("Couldn't disable HA for %s" % vm.name)
-                self.logger.warn("Please turn off and turn on HA from \
-Cluster settings.")
+                print "Couldn't disable HA for %s" % vm.name
+                print "Please turn off and turn on HA from Cluster settings."
             else:
                 self.logger.error("Caught vmodl fault: %s" % e.msg)
                 return 1
