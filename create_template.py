@@ -9,9 +9,9 @@ import argparse
 import sys
 import time
 
-from com.hp.pyVmomi import vim, vmodl
-from com.hp.pyVim import connect
-from com.hp.pyVim.connect import Disconnect
+from pyVmomi import vim, vmodl
+from pyVim import connect
+from pyVim.connect import Disconnect
 
 inputs = {'vcenter_ip': '15.10.10.11',
           'vcenter_password': 'Passw0rd',
