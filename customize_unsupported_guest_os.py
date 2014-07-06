@@ -63,7 +63,10 @@ def main():
         creds = vim.vm.guest.NamePasswordAuthentication(username='root', password='iforgot')
 	#This is just an example. I am wildly modifying interfaces file.
         #You have to be carefull with the linux commands while modifying
-        #the config files such as /etc/hosts or /etc/network/interfaces
+        #the config files such as /etc/hosts or /etc/network/interfaces.
+        #As an example first write the details in interfaces.new file then
+        #rename it to interfaces. 
+        #Raise a request for more changes like hosts, hostname, password etc.
 	args = "'auto eth0\n\
 iface eth0 inet static\n\
 address %s\n\
