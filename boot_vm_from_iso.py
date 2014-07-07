@@ -7,15 +7,15 @@ All Rights Reserved
 import atexit
 import time
 
-from com.hp.pyVmomi import vim, vmodl
-from com.hp.pyVim import connect
-from com.hp.pyVim.connect import Disconnect
+from pyVmomi import vim, vmodl
+from pyVim import connect
+from pyVim.connect import Disconnect
 
-inputs = {'vcenter_ip': '15.212.180.101',
-          'vcenter_password': 'Procurve123',
+inputs = {'vcenter_ip': '15.21.18.11',
+          'vcenter_password': 'Password123',
           'vcenter_user': 'Administrator',
           'vm_name': 'reuben-aur',
-          'datastor_iso_path': '[datastore-9] netinstall.iso'
+          'datastor_iso_path': '[datastore-9] ubuntu12.iso'
           }
 
 
