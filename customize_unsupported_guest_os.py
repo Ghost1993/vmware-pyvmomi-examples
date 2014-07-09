@@ -13,20 +13,23 @@ from pyVmomi import vim, vmodl
 from pyVim import connect
 from pyVim.connect import Disconnect, SmartConnect
 
-inputs = {'vcenter_ip': '15.21.18.11',
+inputs = {'vcenter_ip': '15.22.10.11',
           'vcenter_password': 'Password123',
           'vcenter_user': 'Administrator',
-          'vm_name': 'ubuntu14',
-          'vm_ip': '10.10.10.45',
-          'subnet': '255.255.255.0',
+          'vm_name': 'CustomTest',
+          'user': 'root',
+          'password': 'iforgot',
+          'vm_ip': '10.10.10.23',
+          'netmask': '255.255.255.0',
           'gateway': '10.10.10.1',
-          'dns': '11.110.135.51, 11.110.135.52'
+          'hostname': 'TestVM2'
           }
+
 
 def get_obj(content, vimtype, name):
     """
      Get the vsphere object associated with a given text name
-    """    
+    """
     obj = None
     container = content.viewManager.CreateContainerView(content.rootFolder, vimtype, True)
     for c in container.view:
@@ -35,57 +38,86 @@ def get_obj(content, vimtype, name):
             break
     return obj
 
+
+def exec_command(content, vm, creds, args, program_path):
+    cmdspec = vim.vm.guest.ProcessManager.ProgramSpec(arguments=args, programPath=program_path)
+    output = content.guestOperationsManager.processManager.StartProgramInGuest(vm=vm, auth=creds, spec=cmdspec)
+
+    return output
+
+
 def main():
-    #args = GetArgs()
     try:
         si = None
         try:
             print "Trying to connect to VCENTER SERVER . . ."
-	    #"vim.version.version8" for VMware 5.1 
+            # Vsphere 5.1 = "vim.version.version8"
+            #Vsphere 5.5 = "vim.version.version9"
             si = connect.Connect(inputs['vcenter_ip'], 443, inputs['vcenter_user'], inputs['vcenter_password'], version="vim.version.version8")
         except IOError, e:
             pass
             atexit.register(Disconnect, si)
 
         print "Connected to VCENTER SERVER !"
-        
+
         content = si.RetrieveContent()
-        
-        #vm_name = args.vm
-        vm_name = inputs['vm_name']      
-        vm = get_obj(content, [vim.VirtualMachine], vm_name)
+
+        vm = get_obj(content, [vim.VirtualMachine], inputs['vm_name'])
 
         if vm.runtime.powerState != 'poweredOn':
             print "WARNING:: Power on your VM before customizing"
             sys.exit()
-        
-        print "Started Customizatrion. Writing configuration inside VM."
-        creds = vim.vm.guest.NamePasswordAuthentication(username='root', password='iforgot')
-	#This is just an example. I am wildly modifying interfaces file.
-        #You have to be carefull with the linux commands while modifying
-        #the config files such as /etc/hosts or /etc/network/interfaces.
-        #As an example first write the details in interfaces.new file then
-        #rename it to interfaces. 
-        #Raise a request for more changes like hosts, hostname, password etc.
-	args = "'auto eth0\n\
-iface eth0 inet static\n\
-address %s\n\
-netmask %s\n\
-gateway %s\n\
-dns-nameservers %s\n' > /etc/network/interfaces" % (inputs['vm_ip'], inputs['subnet'], inputs['gateway'], inputs['dns'])
-        spec = vim.vm.guest.ProcessManager.ProgramSpec(arguments=args, programPath='/bin/echo')
-        output = si.content.guestOperationsManager.processManager.StartProgramInGuest(vm=vm, auth=creds, spec=spec)
-	if not output or output < 0:
-            print "ERROR:: Something went wrong while customizing guest os. Manually verify"
+
+        creds = vim.vm.guest.NamePasswordAuthentication(username=inputs['user'], password=inputs['password'])
+
+        args = """ -ne '#!/bin/sh\n\n\
+export VM_IP=%s\n\
+export NETMASK=%s\n\
+export GATEWAY=%s\n\
+export HOST_NAME="%s"\n\n\
+echo "source-directory /etc/network/interfaces.d" >> /etc/network/interfaces.new\n\
+echo "auto lo" >> /etc/network/interfaces.new\n\
+echo "iface lo inet loopback" >> /etc/network/interfaces.new\n\
+echo "" >> /etc/network/interfaces.new\n\
+echo "auto eth0" >> /etc/network/interfaces.new\n\
+echo "iface eth0 inet static" >> /etc/network/interfaces.new\n\
+echo "address $VM_IP" >> /etc/network/interfaces.new\n\
+echo "netmask $NETMASK" >> /etc/network/interfaces.new\n\
+echo "gateway  $GATEWAY">> /etc/network/interfaces.new\n\
+mv /etc/network/interfaces.new /etc/network/interfaces\n\n\
+echo $HOST_NAME > /etc/hostname\n\
+echo "127.0.1.1    $HOST_NAME" >>  /etc/hosts\n\n\
+if [ -e /home/customize_script.sh ]; then\n\
+    rm /home/customize_script.sh\n\
+fi\n\
+' >> /home/customize_script.sh""" % (inputs['vm_ip'], inputs['netmask'], inputs['gateway'], inputs['hostname'])
+
+        output = exec_command(content, vm, creds, args, '/bin/echo')
+
+        print "Waiting for the Customization script to generate..."
+        time.sleep(10)
+        permission = exec_command(content, vm, creds, "+x '/home/customize_script.sh'", '/bin/chmod')
+        if not output and permission or output and permission < 0:
+            print "ERROR:: Something went wrong while creating customization script. Manually verify"
         else:
-            print "Customized the guest succesfully"
+            print "Successfully created the Customization script"
+
+        exec_command(content, vm, creds, "/home/customize_script.sh", '/usr/bin/sudo')
+        print "Successfully customized VM", inputs['vm_name']
+
+        print "Restarting VM to apply hostname change"
+        vm.RebootGuest()
+
     except vmodl.MethodFault, e:
+        if e.msg == "The guest operations agent could not be contacted.":
+            print "ERROR:: VMware Tools is either not installed or nut running inside VM. Please verify and run again."
+            return 1
         print "Caught vmodl fault: %s" % e.msg
         return 1
     except Exception, e:
         print "Caught exception: %s" % str(e)
         return 1
-    
+
 # Start program
 if __name__ == "__main__":
     main()
